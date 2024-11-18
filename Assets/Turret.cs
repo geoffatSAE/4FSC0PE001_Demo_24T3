@@ -12,9 +12,11 @@ public class Turret : MonoBehaviour
     public Color lineColor = Color.red;
     public float launchWait = 1.0f;
 
+    public bool shutdown = false;
+
     public enum TurretSM
     {
-        Following, Launching, Firing
+        Targetting, Following, Firing, Shutdown
 
     }
     public TurretSM turretSM;
@@ -34,6 +36,23 @@ public class Turret : MonoBehaviour
 
         switch (turretSM)
         {
+            case TurretSM.Targetting:
+                Transform closestEnemytransformCheck = enemyManager.ClosestEnemy().transform;
+                pointA = transform.position;
+                pointB = closestEnemytransformCheck.position;
+
+                if (Vector3.Distance(pointA, pointB) < 20.0f)
+                {
+                    turretSM = TurretSM.Following;
+
+                }
+
+                if (shutdown == true)
+                {
+                    turretSM = TurretSM.Shutdown;
+                }
+                break;
+
             case TurretSM.Following:
                 Transform closestEnemytransform = enemyManager.ClosestEnemy().transform;
                 transform.LookAt(closestEnemytransform.position);
@@ -49,12 +68,13 @@ public class Turret : MonoBehaviour
                     turretSM = TurretSM.Firing;
                     launchWait = 1;
                 }
+
+                if (shutdown == true)
+                {
+                    turretSM = TurretSM.Shutdown;
+                }
                 break;
 
-            case TurretSM.Launching:
-                
-
-                break;
 
             case TurretSM.Firing:
 
@@ -62,9 +82,21 @@ public class Turret : MonoBehaviour
                 Instantiate(bulletBillPrefab, spawnPointPosition.position, transform.rotation);
 
 
-                turretSM = TurretSM.Following;
+                turretSM = TurretSM.Targetting;
+
+                if (shutdown == true)
+                {
+                    turretSM = TurretSM.Shutdown;
+                }
 
             break;
+
+            case TurretSM.Shutdown:
+
+                //turret shutdown
+                Debug.Log("turren is HACKED..Shutdown");
+
+                break;
 
         }
 
@@ -74,10 +106,12 @@ public class Turret : MonoBehaviour
 
     void OnDrawGizmos()
     {
+
         // Set the Gizmos color
         Gizmos.color = lineColor;
 
-        // Draw a line between pointA and pointB
-        Gizmos.DrawLine(pointA, pointB);
+        // Draw a line between pointA and pointB if we're following
+        if (turretSM == TurretSM.Following)
+            Gizmos.DrawLine(pointA, pointB);
     }
 }

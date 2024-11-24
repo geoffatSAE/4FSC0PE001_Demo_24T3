@@ -1,9 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI; //needed for navmesh agent
 
 public class PlayerController : MonoBehaviour
 {
+
+
 
     public float moveSpeed;
     Rigidbody rb;
@@ -45,4 +48,6 @@ public class PlayerController : MonoBehaviour
         Debug.Log(accellerating);
         audioS.pitch = accellerating;
     }
+
+
 }
